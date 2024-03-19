@@ -6,9 +6,11 @@ using MediatR;
 namespace Application.Orders.Commands.Create;
 
 internal sealed class CreateOrderCommandHandler(
-    IApplicationDbContext applicationDbContext) : IRequestHandler<CreateOrderCommand>
+    IApplicationDbContext applicationDbContext,
+    IPublisher publisher) : IRequestHandler<CreateOrderCommand>
 {
     private readonly IApplicationDbContext _applicationDbContext = applicationDbContext;
+    private readonly IPublisher _publisher = publisher;
 
     public async Task Handle(
         CreateOrderCommand request,
@@ -25,5 +27,6 @@ internal sealed class CreateOrderCommandHandler(
         Order order = Order.Create(customer.Id);
         _applicationDbContext.Orders.Add(order);
         await _applicationDbContext.SaveChangesAsync(cancellationToken);
+        await _publisher.Publish(new OrderCreatedEvent(order.Id), cancellationToken);
     }
 }
