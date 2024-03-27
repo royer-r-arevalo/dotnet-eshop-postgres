@@ -1,0 +1,23 @@
+version: '3.4'
+
+services:
+  webapi:
+    image: ${DOCKER_REGISTRY-}webapi
+    container_name: eshop-api
+    build:
+      context: .
+      dockerfile: src/WebApi/Dockerfile
+    depends_on:
+      - database
+
+  database:
+    image: postgres:latest
+    container_name: eshop-database
+    environment: 
+      - POSTGRES_DB=eshop-test
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./.containers/eshop-db:/var/lib/postgresql/data
+    ports:
+      - 6543:5432

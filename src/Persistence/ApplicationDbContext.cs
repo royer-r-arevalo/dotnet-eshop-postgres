@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Persistence;
 
-public class ApplicationDbContext : DbContext, IApplicationDbContext
+public class ApplicationDbContext(
+    DbContextOptions<ApplicationDbContext> options) : DbContext(options), IApplicationDbContext
 {
     public DbSet<Order> Orders { get; set; }
     public DbSet<Customer> Customers { get; set; }

@@ -5,7 +5,7 @@ namespace Domain.Orders;
 
 public sealed class Order
 {
-    private readonly HashSet<LineItem> _lineItems = [];
+    private readonly List<LineItem> _lineItems = [];
 
     private Order()
     {
@@ -15,7 +15,7 @@ public sealed class Order
 
     public CustomerId CustomerId { get; private set; }
 
-    public IReadOnlyList<LineItem> LineItems => _lineItems.ToList();
+    public IReadOnlyCollection<LineItem> LineItems => _lineItems.AsReadOnly();
 
     public static Order Create(CustomerId customerId)
     {

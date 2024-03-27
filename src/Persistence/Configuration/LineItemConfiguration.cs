@@ -9,6 +9,8 @@ internal sealed class LineItemConfiguration : IEntityTypeConfiguration<LineItem>
 {
     public void Configure(EntityTypeBuilder<LineItem> builder)
     {
+        builder.ToTable("LineItems");
+
         builder.HasKey(lineItem => lineItem.Id);
 
         builder.Property(lineItem => lineItem.Id)
