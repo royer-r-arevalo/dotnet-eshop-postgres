@@ -21,3 +21,17 @@ services:
       - ./.containers/eshop-db:/var/lib/postgresql/data
     ports:
       - 6543:5432
+  
+  mq:
+    image: rabbitmq:3-management
+    container_name: eshop-mq
+    hostname: eshop-mq
+    volumes:
+        - ./.containers/queue/data/:/var/lib/rabbitmq
+        - ./.containers/queue/log/:/var/log/rabbitmq
+    ports:
+        - 5672:5672
+        - 15672:15672
+    environment:
+        RABBITMQ_DEFAULT_USER: guest
+        RABBITMQ_DEFAULT_PASS: guest

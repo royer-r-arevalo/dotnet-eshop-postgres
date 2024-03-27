@@ -1,5 +1,5 @@
 ﻿namespace Application;
 
-internal class ApplicationAssemblyReference
+public class ApplicationAssemblyReference
 {
 }

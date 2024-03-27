@@ -2,6 +2,9 @@ using Carter;
 using Persistence;
 using Application;
 using WebApi.Extensions;
+using Rebus.Config;
+using Rebus.Routing.TypeBased;
+using Application.Orders.Commands.Create;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +16,23 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddCarter();
 builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddApplication();
+
+builder.Services.AddRebus(rebus => rebus
+    .Routing(r =>
+        r.TypeBased().MapAssemblyOf<ApplicationAssemblyReference>("eshop-queue"))
+    .Transport(t =>
+        t.UseRabbitMq(
+            builder.Configuration.GetConnectionString("MessageBroker"), "eshop-queue"))
+    .Sagas(s =>
+        s.StoreInPostgres(
+            builder.Configuration.GetConnectionString("Database"), "sagas", "saga_indexes")),
+    onCreated: async bus =>
+    {
+        await bus.Subscribe<OrderConfirmationEmailSent>();
+        await bus.Subscribe<OrderPaymentRequestSent>();
+    });
+
+builder.Services.AutoRegisterHandlersFromAssemblyOf<ApplicationAssemblyReference>();
 
 var app = builder.Build();
 

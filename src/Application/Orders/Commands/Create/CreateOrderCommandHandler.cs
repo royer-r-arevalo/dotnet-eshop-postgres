@@ -2,15 +2,16 @@
 using Domain.Customers;
 using Domain.Orders;
 using MediatR;
+using Rebus.Bus;
 
 namespace Application.Orders.Commands.Create;
 
 internal sealed class CreateOrderCommandHandler(
     IApplicationDbContext applicationDbContext,
-    IPublisher publisher) : IRequestHandler<CreateOrderCommand>
+    IBus bus) : IRequestHandler<CreateOrderCommand>
 {
     private readonly IApplicationDbContext _applicationDbContext = applicationDbContext;
-    private readonly IPublisher _publisher = publisher;
+    private readonly IBus _bus= bus;
 
     public async Task Handle(
         CreateOrderCommand request,
@@ -27,7 +28,7 @@ internal sealed class CreateOrderCommandHandler(
         Order order = Order.Create(customer.Id);
         _applicationDbContext.Orders.Add(order);
         await _applicationDbContext.SaveChangesAsync(cancellationToken);
-        await _publisher.Publish(new OrderCreatedEvent(order.Id), cancellationToken);
+        await _bus.Send(new OrderCreatedEvent(order.Id.Value));
     }
 }
 
