@@ -27,6 +27,10 @@ internal sealed class CreateOrderCommandHandler(
 
         Order order = Order.Create(customer.Id);
         _applicationDbContext.Orders.Add(order);
+        _applicationDbContext.OrderSummaries.Add(new OrderSummary(
+            order.Id.Value,
+            order.CustomerId.Value,
+            0));
         await _applicationDbContext.SaveChangesAsync(cancellationToken);
         await _bus.Send(new OrderCreatedEvent(order.Id.Value));
     }

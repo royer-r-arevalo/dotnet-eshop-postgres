@@ -1,7 +1,6 @@
 ﻿using Rebus.Bus;
 using Rebus.Handlers;
 using Rebus.Sagas;
-using System.Data;
 
 namespace Application.Orders.Commands.Create;
 
