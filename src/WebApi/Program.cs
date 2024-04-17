@@ -5,6 +5,7 @@ using WebApi.Extensions;
 using Rebus.Config;
 using Rebus.Routing.TypeBased;
 using Application.Orders.Commands.Create;
+using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,38 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddCarter();
 builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddApplication();
+
+builder.Services.AddRateLimiter(raterLimitierOptions =>
+{
+    raterLimitierOptions.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    raterLimitierOptions.AddFixedWindowLimiter("fixed", options =>
+    {
+        options.Window = TimeSpan.FromSeconds(10);
+        options.PermitLimit = 3;
+        options.QueueLimit = 3;
+        options.QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst;
+    });
+
+    raterLimitierOptions.AddSlidingWindowLimiter("sliding", options =>
+    {
+        options.Window = TimeSpan.FromSeconds(15);
+        options.SegmentsPerWindow = 1;
+        options.PermitLimit = 15;
+    });
+
+    raterLimitierOptions.AddTokenBucketLimiter("token", options =>
+    {
+        options.TokenLimit = 100;
+        options.ReplenishmentPeriod = TimeSpan.FromSeconds(5);
+        options.TokensPerPeriod = 10;
+    });
+
+    raterLimitierOptions.AddConcurrencyLimiter("concurrency", options =>
+    {
+        options.PermitLimit = 5;
+    });
+});
 
 builder.Services.AddRebus(rebus => rebus
     .Routing(r =>
@@ -45,7 +78,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseRateLimiter();
 app.MapCarter();
 app.Run();
 
