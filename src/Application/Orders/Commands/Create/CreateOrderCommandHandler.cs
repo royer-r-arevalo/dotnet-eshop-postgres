@@ -7,11 +7,9 @@ using Rebus.Bus;
 namespace Application.Orders.Commands.Create;
 
 internal sealed class CreateOrderCommandHandler(
-    IApplicationDbContext applicationDbContext,
-    IBus bus) : IRequestHandler<CreateOrderCommand>
+    IApplicationDbContext applicationDbContext) : IRequestHandler<CreateOrderCommand>
 {
     private readonly IApplicationDbContext _applicationDbContext = applicationDbContext;
-    private readonly IBus _bus= bus;
 
     public async Task Handle(
         CreateOrderCommand request,
@@ -32,7 +30,7 @@ internal sealed class CreateOrderCommandHandler(
             order.CustomerId.Value,
             0));
         await _applicationDbContext.SaveChangesAsync(cancellationToken);
-        await _bus.Send(new OrderCreatedEvent(order.Id.Value));
+        //await _bus.Send(new OrderCreatedEvent(order.Id.Value));
     }
 }
 

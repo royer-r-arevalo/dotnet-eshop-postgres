@@ -1,9 +1,10 @@
 ﻿using Domain.Customers;
+using Domain.Primitives;
 using Domain.Products;
 
 namespace Domain.Orders;
 
-public sealed class Order
+public sealed class Order : Entity
 {
     private readonly List<LineItem> _lineItems = [];
 
@@ -24,6 +25,7 @@ public sealed class Order
             Id = new OrderId(Guid.NewGuid()),
             CustomerId = customerId
         };
+        order.Raise(new OrderCreatedDomainEvent(Guid.NewGuid(), order.Id));
 
         return order;
     }
@@ -47,5 +49,6 @@ public sealed class Order
             return;
         }
         _lineItems.Remove(lineItem);
+        Raise(new LineItemRemovedDomainEvent(Guid.NewGuid(), Id, lineItem.Id));
     }
 }
