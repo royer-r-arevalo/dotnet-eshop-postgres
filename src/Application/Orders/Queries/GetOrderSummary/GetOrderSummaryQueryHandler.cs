@@ -10,12 +10,24 @@ internal sealed class GetOrderSummaryQueryHandler(
 {
     private readonly IApplicationDbContext _context = context;
 
+    //public async Task<OrderSummary?> Handle(
+    //    GetOrderSummaryQuery request,
+    //    CancellationToken cancellationToken)
+    //{
+    //    return await _context.OrderSummaries
+    //        .AsNoTracking()
+    //        .FirstOrDefaultAsync(summary => summary.Id == request.OrderId, cancellationToken);
+    //}
+
     public async Task<OrderSummary?> Handle(
-        GetOrderSummaryQuery request,
+        GetOrderSummaryQuery request, 
         CancellationToken cancellationToken)
     {
-        return await _context.OrderSummaries
-            .AsNoTracking()
-            .FirstOrDefaultAsync(summary => summary.Id == request.OrderId, cancellationToken);
+        return await _context.Database
+            .SqlQuery<OrderSummary>($@"
+                SELECT *
+                FROM v_order_summaries
+                WHERE id = {request.OrderId}")
+            .FirstOrDefaultAsync(cancellationToken);
     }
 }
