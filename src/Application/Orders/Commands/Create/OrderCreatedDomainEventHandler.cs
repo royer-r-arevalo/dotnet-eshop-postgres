@@ -1,4 +1,5 @@
 ﻿using Domain.Orders;
+using IntegrationEvents;
 using MediatR;
 using Rebus.Bus;
 
@@ -13,6 +14,6 @@ internal sealed class OrderCreatedDomainEventHandler(
         OrderCreatedDomainEvent notification, 
         CancellationToken cancellationToken)
     {
-        await _bus.Send(new OrderCreatedEvent(notification.OrderId.Value));
+        await _bus.Send(new OrderCreatedIntegrationEvent(notification.OrderId.Value));
     }
 }
