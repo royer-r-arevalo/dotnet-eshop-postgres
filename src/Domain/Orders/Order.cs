@@ -41,13 +41,20 @@ public sealed class Order : Entity
         _lineItems.Add(lineItem);
     }
 
-    public void RemoveLineItem(LineItemId lineItemId)
+    public void RemoveLineItem(LineItemId lineItemId, IOrderRepository orderRepository)
     {
+        if (orderRepository.HasOneLineItem(this))
+        {
+            return;
+        }
+
         var lineItem = _lineItems.FirstOrDefault(x => x.Id == lineItemId);
+
         if(lineItem is null)
         {
             return;
         }
+
         _lineItems.Remove(lineItem);
         Raise(new LineItemRemovedDomainEvent(Guid.NewGuid(), Id, lineItem.Id));
     }

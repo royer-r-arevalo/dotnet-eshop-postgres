@@ -26,7 +26,7 @@ internal sealed class RemoveLineItemCommandHandler(
             return;
         }
 
-        order.RemoveLineItem(new LineItemId(request.LineItemId));
+        order.RemoveLineItem(new LineItemId(request.LineItemId), _orderRepository);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }

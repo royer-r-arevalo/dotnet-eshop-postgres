@@ -20,4 +20,9 @@ public sealed class OrderRepository(
                 lineItem => lineItem.Id == lineItemId))
             .SingleOrDefaultAsync(order => order.Id == orderId);
     }
+
+    public bool HasOneLineItem(Order order)
+    {
+        return _context.LineItems.Count(li => li.OrderId == order.Id) == 1;
+    }
 }
