@@ -4,5 +4,5 @@ using MediatR;
 namespace Application.Orders.Commands.RemoveLineItem;
 
 public sealed record RemoveLineItemCommand(
-    OrderId OrderId,
-    LineItemId LineItemId) : IRequest;
+    Guid OrderId,
+    Guid LineItemId) : IRequest;

@@ -10,7 +10,7 @@ namespace Persistence;
 
 public class ApplicationDbContext(
     DbContextOptions<ApplicationDbContext> options,
-    IPublisher publisher) : DbContext(options), IApplicationDbContext
+    IPublisher publisher) : DbContext(options), IApplicationDbContext, IUnitOfWork
 {
     private readonly IPublisher _publisher = publisher;
 
@@ -29,8 +29,8 @@ public class ApplicationDbContext(
     {
         var domainEvents = ChangeTracker.Entries<Entity>()
             .Select(e => e.Entity)
-            .Where(e => e.DomainEvents.Any())
-            .SelectMany(e => e.DomainEvents);
+            .Where(e => e.GetDomainEvents().Any())
+            .SelectMany(e => e.GetDomainEvents());
 
         var result = await base.SaveChangesAsync(cancellationToken);
 

@@ -7,56 +7,36 @@ using Rebus.Bus;
 namespace Application.Orders.Commands.Create;
 
 internal sealed class CreateOrderCommandHandler(
-    IApplicationDbContext applicationDbContext) : IRequestHandler<CreateOrderCommand>
+    ICustomerRepository customerRepository,
+    IOrderRepository orderRepository,
+    IOrderSummaryRepository orderSummaryRepository,
+    IUnitOfWork unitOfWork) : IRequestHandler<CreateOrderCommand>
 {
-    private readonly IApplicationDbContext _applicationDbContext = applicationDbContext;
+    private readonly ICustomerRepository _customerRepository = customerRepository;
+    private readonly IOrderRepository _orderRepository = orderRepository;
+    private readonly IOrderSummaryRepository _orderSummaryRepository = orderSummaryRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task Handle(
         CreateOrderCommand request,
         CancellationToken cancellationToken)
     {
-        Customer? customer = await _applicationDbContext.Customers.FindAsync(
-            new CustomerId(request.CustomerId), cancellationToken);
+        var customer = await _customerRepository.GetByIdAsync(
+            new CustomerId(request.CustomerId));
 
-        if (customer == null)
+        if (customer is null)
         {
             return;
         }
 
-        Order order = Order.Create(customer.Id);
-        _applicationDbContext.Orders.Add(order);
-        _applicationDbContext.OrderSummaries.Add(new OrderSummary(
+        var order = Order.Create(customer.Id);
+
+        _orderRepository.Add(order);
+        _orderSummaryRepository.Add(new OrderSummary(
             order.Id.Value,
             order.CustomerId.Value,
             0));
-        await _applicationDbContext.SaveChangesAsync(cancellationToken);
-        //await _bus.Send(new OrderCreatedEvent(order.Id.Value));
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }
-
-//internal sealed class CreateOrderCommandHandler(
-//    IRepository<Customer> customerRepository,
-//    IRepository<Order> orderRepository,
-//    IPublisher publisher) : IRequestHandler<CreateOrderCommand>
-//{
-//    private readonly IRepository<Customer> _customerRepository = customerRepository;
-//    private readonly IRepository<Order> _orderRepository = orderRepository;
-//    private readonly IPublisher _publisher = publisher;
-
-//    public async Task Handle(
-//      CreateOrderCommand request,
-//      CancellationToken cancellationToken)
-//    {
-//        Customer? customer = await _customerRepository.GetByIdAsync(request.CustomerId);
-
-//        if (customer is null)
-//        {
-//            return;
-//        }
-
-//        Order order = Order.Create(customer.Id);
-//        _orderRepository.Insert(order);
-//        await _orderRepository.SaveChangesAsync();
-//        await _publisher.Publish(new OrderCreatedEvent(order.Id), cancellationToken);
-//    }
-//}

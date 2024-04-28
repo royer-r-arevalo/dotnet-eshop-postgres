@@ -15,7 +15,7 @@ public class OrderTests
         var order = Order.Create(customerId);
         
         //Assert
-        Assert.NotEmpty(order.DomainEvents.OfType<OrderCreatedDomainEvent>());
+        Assert.NotEmpty(order.GetDomainEvents().OfType<OrderCreatedDomainEvent>());
     }
 }
 
