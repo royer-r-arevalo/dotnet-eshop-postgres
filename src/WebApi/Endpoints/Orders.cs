@@ -8,7 +8,7 @@ using WebApi.Contracts.Orders;
 namespace WebApi.Endpoints;
 
 [EnableRateLimiting("sliding")]
-public class OrdersModule : ICarterModule
+public class Orders : ICarterModule
 {
     [DisableRateLimiting]
     public void AddRoutes(IEndpointRouteBuilder app)
